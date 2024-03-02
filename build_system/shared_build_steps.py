@@ -66,11 +66,11 @@ def setJavaHome(config):
         # currently only the Alpine image brings its own java-installation & JAVA_HOME
         # for other Linux images we install the JDK and setup JAVA_HOME manually
         if (config.vendor != c.vendor_alpine):
-            print "Setting JAVA_HOME env-var for Docker Linux build"
+            print("Setting JAVA_HOME env-var for Docker Linux build")
             return setEnvVar("JAVA_HOME", "/opt/jdk/jdk1.8.0_131")
 
     # for any other builds, we can just assume that JAVA_HOME is already set system-wide
-    print "Using system-var JAVA_HOME"
+    print("Using system-var JAVA_HOME")
     return []
 
 def setVersionEnv(config):
@@ -173,7 +173,7 @@ def copyNativeLibs(config):
     else:
         lib_target_path = "src/main/resources/"
 
-    print "Copying native lib from: " + platform_lib_path + " to: " + lib_target_path
+    print("Copying native lib from: " + platform_lib_path + " to: " + lib_target_path)
 
     copy_cmds += cp(platform_lib_path + " " + lib_target_path)
 
@@ -246,7 +246,7 @@ def apply_maven_settings(settings, src_pom_path = "./pom.xml", target_pom_path =
 
     target_pom_path = target_pom_path or src_pom_path
 
-    print "Updating Maven configuration (" + target_pom_path + ")..."
+    print("Updating Maven configuration (" + target_pom_path + ")...")
 
     tree = ET.parse(src_pom_path, XmlCommentParser())
     root = tree.getroot()

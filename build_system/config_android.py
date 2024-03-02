@@ -130,7 +130,7 @@ def build_j2v8_test(config):
                 .replace("$EMU_ARCH", emu_arch)
         )
 
-	os.chmod("./docker/android/start-emulator.sh", 0755)
+	os.chmod("./docker/android/start-emulator.sh", 0o755)
 
         return ["/usr/bin/supervisord -c /j2v8/docker/android/supervisord.conf"]
 

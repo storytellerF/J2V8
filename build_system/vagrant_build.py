@@ -15,7 +15,7 @@ class VagrantBuildSystem(BuildSystem):
         return
 
     def health_check(self, config):
-        print "Verifying Vagrant build-system status..."
+        print("Verifying Vagrant build-system status...")
         try:
             self.exec_host_cmd("vagrant --version", config)
         except subprocess.CalledProcessError:
@@ -32,10 +32,10 @@ class VagrantBuildSystem(BuildSystem):
 
         def cli_exit_event():
             if (config.no_shutdown):
-                print "INFO: Vagrant J2V8 machine will continue running..."
+                print("INFO: Vagrant J2V8 machine will continue running...")
                 return
 
-            print "Waiting for vagrant virtual-machine to exit..."
+            print("Waiting for vagrant virtual-machine to exit...")
             self.exec_host_cmd("vagrant halt", config)
 
         atexit.register(cli_exit_event)
@@ -62,7 +62,7 @@ class VagrantBuildSystem(BuildSystem):
 
     def post_build(self, config):
         if (config.no_shutdown):
-            print "INFO: Vagrant J2V8 machine will continue running..."
+            print("INFO: Vagrant J2V8 machine will continue running...")
             return
 
         self.exec_host_cmd("vagrant halt", config)

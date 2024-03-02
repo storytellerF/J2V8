@@ -23,7 +23,7 @@ class DockerBuildSystem(BuildSystem):
             return
 
     def health_check(self, config):
-        print "Verifying Docker build-system status..."
+        print("Verifying Docker build-system status...")
         try:
             # general docker availability check
             self.exec_host_cmd("docker --version", config)
@@ -106,10 +106,10 @@ class DockerBuildSystem(BuildSystem):
 
         def cli_exit_event():
             if config.no_shutdown:
-                print "INFO: Docker J2V8 container will continue running..."
+                print("INFO: Docker J2V8 container will continue running...")
                 return
 
-            print "Waiting for docker process to exit..."
+            print("Waiting for docker process to exit...")
             self.exec_host_cmd(docker_stop_str, config)
 
         atexit.register(cli_exit_event)
@@ -182,7 +182,7 @@ class DockerBuildSystem(BuildSystem):
 
         docker_run_str = self.inject_env(docker_run_str, config)
 
-        print docker_run_str
+        print(docker_run_str)
 
         self.exec_host_cmd(docker_run_str, config)
 
