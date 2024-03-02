@@ -8,8 +8,10 @@ import __main__
 from test_result import TestResult, TestOutcome
 import test_utils as utils
 
+
 class SurePhyreTestRunner(object):
     """ Run the given TestSuite and collect statistics & timing information about the tests being run. """
+
     def __init__(self):
         self.runner_start_time = None
         self.runner_stop_time = None
@@ -90,7 +92,8 @@ class SurePhyreTestRunner(object):
                     err_message = r.errObj[1].message
                     err_frame = r.errObj[2].tb_next
                     err_lineno = err_frame.tb_lineno if err_frame else ""
-                    utils.write_log("ERROR", "  %(test_class)s.%(test_method)s:%(err_lineno)s %(err_message)s" % locals())
+                    utils.write_log("ERROR",
+                                    "  %(test_class)s.%(test_method)s:%(err_lineno)s %(err_message)s" % locals())
 
         print_summary_problems(failure_results, "Failure")
         print_summary_problems(error_results, "Error")
@@ -101,7 +104,8 @@ class SurePhyreTestRunner(object):
         num_skips = len(skipped_results)
 
         utils.write_log("INFO")
-        utils.write_log("ERROR", "Tests run: %(num_success)s, Failures: %(num_failures)s, Errors: %(num_errors)s, Skipped: %(num_skips)s" % locals())
+        utils.write_log("ERROR",
+                        "Tests run: %(num_success)s, Failures: %(num_failures)s, Errors: %(num_errors)s, Skipped: %(num_skips)s" % locals())
         utils.write_log("INFO")
 
         total_elapsed = self.runner_stop_time - self.runner_start_time

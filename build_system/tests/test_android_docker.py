@@ -5,6 +5,7 @@ from runner.test_asserts import *
 import constants as c
 import build_executor as bex
 
+
 class TestAndroidDocker(unittest.TestCase):
 
     def with_x86_defaults(self, params):
@@ -12,7 +13,7 @@ class TestAndroidDocker(unittest.TestCase):
             "target": c.target_android,
             "arch": c.arch_x86,
             "docker": True,
-            "redirect_stdout": True, # important for test-logging
+            "redirect_stdout": True,  # important for test-logging
         }
         params.update(x86_defaults)
         return params
@@ -23,23 +24,21 @@ class TestAndroidDocker(unittest.TestCase):
         r"\n:spoon\n\nBUILD SUCCESSFUL\n\nTotal time: ",
     ])
     def test_x86_node_disabled(self):
-
         params = self.with_x86_defaults(
-        {
-            "buildsteps": ["j2v8", "test"],
-            "j2v8test": "-PtestClass=com.eclipsesource.v8.NodeJSTest",
-        })
+            {
+                "buildsteps": ["j2v8", "test"],
+                "j2v8test": "-PtestClass=com.eclipsesource.v8.NodeJSTest",
+            })
 
         bex.execute_build(params)
 
     @expectOutput(r"\n:spoon\n\nBUILD SUCCESSFUL\n\nTotal time: ")
     def test_x86_node_enabled(self):
-
         params = self.with_x86_defaults(
-        {
-            "node_enabled": True,
-            "buildsteps": ["j2v8", "test"],
-            "j2v8test": "-PtestClass=com.eclipsesource.v8.NodeJSTest",
-        })
+            {
+                "node_enabled": True,
+                "buildsteps": ["j2v8", "test"],
+                "j2v8test": "-PtestClass=com.eclipsesource.v8.NodeJSTest",
+            })
 
         bex.execute_build(params)

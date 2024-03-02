@@ -1,5 +1,4 @@
-
-def write_log(level, message = ""):
+def write_log(level, message=""):
     print("$ [%(level)s] %(message)s" % locals())
 
 

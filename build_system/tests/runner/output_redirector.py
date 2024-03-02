@@ -1,6 +1,6 @@
-
 class OutputRedirector(object):
     """ Wrapper to redirect stdout, stderr or any other stream that it is given """
+
     def __init__(self, streams):
         self.streams = streams
 

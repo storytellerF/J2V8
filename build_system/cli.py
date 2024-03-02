@@ -3,6 +3,7 @@ import argparse
 import constants as c
 import build_constants as bc
 
+
 class BuildParams(object):
     """Value container for all build-parameters"""
 
@@ -54,6 +55,7 @@ class BuildParams(object):
         # this should never be passed in by the user, it is used just internally
         self.cross_agent = None
 
+
 def init_args(parser):
     """Initialize all supported build.py parameters and commands on the CLI parser"""
     init_required_args(parser)
@@ -63,10 +65,11 @@ def init_args(parser):
     init_meta_args(parser)
     init_build_steps(parser)
 
+
 def init_required_args(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Essential build settings
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     parser.add_argument("--target", "-t",
                         help="The build target platform name (must be a valid platform string identifier).",
                         dest="target",
@@ -79,10 +82,11 @@ def init_required_args(parser):
                         required=True,
                         choices=bc.avail_architectures)
 
+
 def init_optional_args(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Optional build settings
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     parser.add_argument("--vendor", "-v",
                         help="The operating system vendor (most relevant when building for a specific Linux distribution).",
                         dest="vendor")
@@ -94,10 +98,11 @@ def init_optional_args(parser):
                         action="store_const",
                         const=True)
 
+
 def init_feature_args(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # J2V8 Feature switches
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     parser.add_argument("--node-enabled", "-ne",
                         help="Include the Node.js runtime and builtin node-modules for use in J2V8.",
                         dest="node_enabled",
@@ -105,10 +110,11 @@ def init_feature_args(parser):
                         action="store_const",
                         const=True)
 
+
 def init_cross_compile_args(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Docker / Vagrant cross-compile settings
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     parser.add_argument("--docker", "-dkr",
                         help="Run a cross-compile environment in a Docker container (all required build-tools are then fully contained & virtualized).",
                         dest="docker",
@@ -133,10 +139,11 @@ def init_cross_compile_args(parser):
                         action="store_const",
                         const=True)
 
+
 def init_meta_args(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Meta-Args
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # NOTE: this option is only used internally to distinguish the running of the build script within
     # the build-instigator and the actual build-executor (this is relevant when cross-compiling)
     parser.add_argument("--cross-agent",
@@ -146,53 +153,56 @@ def init_meta_args(parser):
 
     parser.add_argument("--redirect-stdout", "-rso",
                         help="Make sure that the stdout/stderr of sub-proccesses running shell commands is also going through the " +
-                        "output interface of the python host process that is running the build.\n" +
-                        "(this is required when running tests for the build-system, without this option the output of the subprocesses will "+
-                        "not show up in the test logs)",
+                             "output interface of the python host process that is running the build.\n" +
+                             "(this is required when running tests for the build-system, without this option the output of the subprocesses will " +
+                             "not show up in the test logs)",
                         dest="redirect_stdout",
                         default=False,
                         action="store_const",
                         const=True)
 
     parser.add_argument("--interactive", "-i",
-                    help="Run the interactive version of the J2V8 build CLI.",
-                    dest="interactive",
-                    default=False,
-                    action="store_const",
-                    const=True)
+                        help="Run the interactive version of the J2V8 build CLI.",
+                        dest="interactive",
+                        default=False,
+                        action="store_const",
+                        const=True)
+
 
 def init_build_steps(parser):
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Build-Steps
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     parser.add_argument("buildsteps",
                         help="Pass a single build-step or a list of all the recognized build-steps that should be executed\n" +
-                            "(the order of the steps given to the CLI does not matter, the correct order will be restored internally).\n\n" +
-                            "the fundamental build steps (in order):\n" +
-                            "---------------------------------------\n" +
-                            "\n".join([s.id + s.help for s in bc.atomic_build_steps]) + "\n\n" +
-                            "aliases / combinations of multiple of the above steps:\n" +
-                            "------------------------------------------------------\n" +
-                            "\n".join([s.id + s.help for s in bc.advanced_steps]),
+                             "(the order of the steps given to the CLI does not matter, the correct order will be restored internally).\n\n" +
+                             "the fundamental build steps (in order):\n" +
+                             "---------------------------------------\n" +
+                             "\n".join([s.id + s.help for s in bc.atomic_build_steps]) + "\n\n" +
+                             "aliases / combinations of multiple of the above steps:\n" +
+                             "------------------------------------------------------\n" +
+                             "\n".join([s.id + s.help for s in bc.advanced_steps]),
                         metavar="build-steps",
                         nargs="*",
                         default=None,
                         # NOTE: an empty list is what is passed to "buildsteps" when the user does not specify any steps explicitly
                         choices=bc.avail_build_steps + [[]])
 
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     # Build-Steps with Arguments
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     for step_name in bc.atomic_build_step_sequence:
         parser.add_argument("--" + step_name,
                             help=argparse.SUPPRESS,
                             dest=step_name)
+
 
 def get_parser():
     """Get a CLI parser instance that accepts all supported build.py parameters and commands"""
     parser = get_blank_parser()
     init_args(parser)
     return parser
+
 
 def get_blank_parser():
     parser = argparse.ArgumentParser(prog="build", formatter_class=argparse.RawTextHelpFormatter)

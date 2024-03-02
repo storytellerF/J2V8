@@ -12,27 +12,35 @@ import constants as c
 V8Version = collections.namedtuple("V8Version", "major minor build patch is_candidate")
 NodeJSVersion = collections.namedtuple("NodeJSVersion", "major minor patch is_release")
 
+
 def get_cwd():
     return os.getcwd().replace("\\", "/")
 
+
 def host_cmd_sep():
     return "&& " if os.name == "nt" else "; "
+
 
 def touch(filename, times=None):
     with open(filename, 'a'):
         os.utime(filename, times)
 
+
 def is_android(platform):
     return c.target_android in platform
+
 
 def is_linux(platform):
     return c.target_linux in platform
 
+
 def is_macos(platform):
     return c.target_macos in platform
 
+
 def is_win32(platform):
     return c.target_win32 in platform
+
 
 def platform_libext(config):
     lib_ext = "so"
@@ -45,6 +53,7 @@ def platform_libext(config):
 
     return lib_ext
 
+
 def cli_exit(message):
     """
     sys.exit() messages are not picked up correctly when unit-testing.
@@ -53,6 +62,7 @@ def cli_exit(message):
     sys.stderr.write(message + "\n")
     sys.stderr.flush()
     sys.exit(1)
+
 
 def get_v8_version():
     v8_version_text = None
@@ -76,6 +86,7 @@ def get_v8_version():
 
         return V8Version(major, minor, build, patch, is_candidate)
 
+
 def get_nodejs_version():
     njs_version_text = None
 
@@ -96,13 +107,14 @@ def get_nodejs_version():
 
         return NodeJSVersion(major, minor, patch, is_release)
 
+
 # based on code from: https://stackoverflow.com/a/16260159/425532
 def readlines(f, newlines):
     buf = ""
     while True:
-    #{
+        # {
         def get_pos():
-        #{
+            # {
             pos = None
             nl = None
             for n in newlines:
@@ -117,7 +129,8 @@ def readlines(f, newlines):
                     nl = n
 
             return (pos, nl)
-        #}
+
+        # }
 
         pos, nl = get_pos()
 
@@ -137,11 +150,13 @@ def readlines(f, newlines):
             yield buf
             break
         buf += chunk
-    #}
+    # }
+
 
 redirect_stdout_enabled = False
 
-def execute(cmd, cwd = None):
+
+def execute(cmd, cwd=None):
     """
     Low-Level CLI utility function to execute a shell command in a sub-process of the current python process
     (redirects all output to the host-process stdout if redirect_stdout_enabled is True)
@@ -166,12 +181,12 @@ def execute(cmd, cwd = None):
         sys.stdout.flush()
 
         p = subprocess.Popen(cmd,
-            shell=True,
-            cwd=cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT#,
-            #stdin=sys.stdin
-        )
+                             shell=True,
+                             cwd=cwd,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT  # ,
+                             # stdin=sys.stdin
+                             )
         # while True:
         #     line = p.stdout.readline()
         #     if line == '':
@@ -191,7 +206,8 @@ def execute(cmd, cwd = None):
         if return_code:
             raise subprocess.CalledProcessError(return_code, cmd)
 
-def execute_to_str(cmd, cwd = None):
+
+def execute_to_str(cmd, cwd=None):
     """
     Low-Level CLI utility function to execute a shell command in a sub-process of the current python process
     (returns all output as a string)
@@ -207,13 +223,17 @@ def execute_to_str(cmd, cwd = None):
 
     return out
 
+
 def store_v8_output(image_name, config):
     print("Storing V8 output from '{0}' docker image".format(image_name))
     build_cwd = get_cwd()
-    dest_cpu= c.arch_x64 if config.arch == c.arch_x86_64 else config.arch
+    dest_cpu = c.arch_x64 if config.arch == c.arch_x86_64 else config.arch
     static_library_output_dir = config.platform + "." + dest_cpu
-    dest_cpu= 'ia32' if config.arch == c.arch_x86 else dest_cpu
-    execute("""docker run --rm -v {0}/v8.out:/mount {1} /bin/bash -c "cp -R include /mount && mkdir -p /mount/{3}/ && cp -R out.gn/{2}.release/obj/libv8_monolith.a /mount/{3}/" """.format(build_cwd, image_name, dest_cpu, static_library_output_dir))
+    dest_cpu = 'ia32' if config.arch == c.arch_x86 else dest_cpu
+    execute(
+        """docker run --rm -v {0}/v8.out:/mount {1} /bin/bash -c "cp -R include /mount && mkdir -p /mount/{3}/ && cp -R out.gn/{2}.release/obj/libv8_monolith.a /mount/{3}/" """.format(
+            build_cwd, image_name, dest_cpu, static_library_output_dir))
+
 
 def store_nodejs_output(next_node_tag, build_cwd):
     """Cache built Node.js artifacts into a common directory structure, identified by vendor, platform and architecture."""
@@ -300,9 +320,10 @@ def apply_file_template(src, dest, inject_vars_fn):
     with open(dest, "w") as f:
         f.write(template_text)
 
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 # Sanity check for the builtin node-module links in J2V8 C++ JNI code
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 def check_node_builtins():
     """
     The function compares the list of builtin Node.js modules with the setup

@@ -11,11 +11,14 @@ import test_utils as utils
 
 TestResultBase = unittest.TestResult
 
+
 class TestOutcome:
     Success, Failure, Error, Skip = range(4)
 
+
 __TestRunData = collections.namedtuple("TestRunData", "outcome test errStr errObj output elapsed")
 __TestRunData.__new__.__defaults__ = (None,) * len(__TestRunData._fields)
+
 
 class TestRunData(__TestRunData):
     """
@@ -30,6 +33,7 @@ class TestRunData(__TestRunData):
     """
     pass
 
+
 class TestResult(TestResultBase):
     """
     Collects and processes the results from an invoked set of tests.
@@ -39,6 +43,7 @@ class TestResult(TestResultBase):
     2) Collect the stdout/stderr that each of the tests produces
     3) Collect statistics and reporting-details for successful and failed test-runs
     """
+
     def __init__(self, streams, test_cases):
         TestResultBase.__init__(self)
         self.__sys_stdout = None
@@ -62,7 +67,7 @@ class TestResult(TestResultBase):
         self.error_results = []
         self.skipped_results = []
 
-    #override
+    # override
     def startTest(self, test):
         TestResultBase.startTest(self, test)
 
@@ -116,11 +121,12 @@ class TestResult(TestResultBase):
             failure_tag = "<<< FAILURE! "
         elif (num_skips):
             log_level = "WARNING"
-        
+
         utils.write_separator()
         print
         utils.write_separator()
-        utils.write_log(log_level, "Tests run: %(num_tests)s, Failures: %(num_failures)s, Errors: %(num_errors)s, Skipped: %(num_skips)s, Time elapsed: %(test_elapsed)s s %(failure_tag)s- in %(test_class)s" % locals())
+        utils.write_log(log_level,
+                        "Tests run: %(num_tests)s, Failures: %(num_failures)s, Errors: %(num_errors)s, Skipped: %(num_skips)s, Time elapsed: %(test_elapsed)s s %(failure_tag)s- in %(test_class)s" % locals())
         utils.write_separator()
 
         def print_errors(test_class, err_list, kind):
@@ -128,7 +134,8 @@ class TestResult(TestResultBase):
                 test = result.test
                 elapsed = result.elapsed
                 test_method = test._testMethodName
-                utils.write_log("ERROR", "%(test_method)s(%(test_class)s)  Time elapsed: %(elapsed)s s  <<< %(kind)s!" % locals())
+                utils.write_log("ERROR",
+                                "%(test_method)s(%(test_class)s)  Time elapsed: %(elapsed)s s  <<< %(kind)s!" % locals())
                 err_frame = result.errObj[2].tb_next
                 traceback.print_tb(err_frame, 1)
                 print
@@ -140,7 +147,7 @@ class TestResult(TestResultBase):
         print_errors(test_class, self.error_results, "ERROR")
         print_errors(test_class, self.failure_results, "FAILURE")
 
-    def complete_test_case(self, test, test_info = None):
+    def complete_test_case(self, test, test_info=None):
         """
         Disconnect output redirection and return buffer.
         Safe to call multiple times.
@@ -178,7 +185,7 @@ class TestResult(TestResultBase):
             self.__sys_stdout = None
             self.__sys_stderr = None
 
-    #override
+    # override
     def stopTest(self, test):
         # Usually one of addSuccess, addError or addFailure would have been called.
         # But there are some path in unittest that would bypass this.
@@ -212,7 +219,7 @@ class TestResult(TestResultBase):
 
         return True
 
-    #override
+    # override
     def addSuccess(self, test):
 
         # after a test was successful, also run stdout/stderr asserts
@@ -224,21 +231,21 @@ class TestResult(TestResultBase):
         testData = TestRunData(TestOutcome.Success, test, '', None)
         self.complete_test_case(test, testData)
 
-    #override
+    # override
     def addError(self, test, err):
         TestResultBase.addError(self, test, err)
         _, _exc_str = self.errors[-1]
         testData = TestRunData(TestOutcome.Error, test, _exc_str, err)
         self.complete_test_case(test, testData)
 
-    #override
+    # override
     def addFailure(self, test, err):
         TestResultBase.addFailure(self, test, err)
         _, _exc_str = self.failures[-1]
         testData = TestRunData(TestOutcome.Failure, test, _exc_str, err)
         self.complete_test_case(test, testData)
 
-    #override
+    # override
     def addSkip(self, test, reason):
         TestResultBase.addSkip(self, test, reason)
         testData = TestRunData(TestOutcome.Skip, test, reason, None)

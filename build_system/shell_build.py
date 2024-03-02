@@ -4,6 +4,7 @@ from build_structures import BuildSystem
 import constants as c
 import build_utils as utils
 
+
 class ShellBuildSystem(BuildSystem):
     def clean(self, config):
         return
@@ -19,7 +20,7 @@ class ShellBuildSystem(BuildSystem):
         return
 
     def exec_build(self, config):
-        print ("SHELL building " + config.platform + "@" + config.arch + " => " + config.name)
+        print("SHELL building " + config.platform + "@" + config.arch + " => " + config.name)
 
         build_cmd = config.custom_cmd or " && ".join(config.build(config))
         shell_str = self.inject_env("cd $BUILD_CWD && " + build_cmd, config)

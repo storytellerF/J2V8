@@ -7,18 +7,20 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
+
 # see: https://stackoverflow.com/a/27333347/425532
 class XmlCommentParser(ET.XMLTreeBuilder):
 
-   def __init__(self):
-       ET.XMLTreeBuilder.__init__(self)
-       # assumes ElementTree 1.2.X
-       self._parser.CommentHandler = self.handle_comment
+    def __init__(self):
+        ET.XMLTreeBuilder.__init__(self)
+        # assumes ElementTree 1.2.X
+        self._parser.CommentHandler = self.handle_comment
 
-   def handle_comment(self, data):
-       self._target.start(ET.Comment, {})
-       self._target.data(data)
-       self._target.end(ET.Comment)
+    def handle_comment(self, data):
+        self._target.start(ET.Comment, {})
+        self._target.data(data)
+        self._target.end(ET.Comment)
+
 
 import constants as c
 import build_settings as s
@@ -33,31 +35,38 @@ java_tests_cmd = "mvn test -e --batch-mode"
 # IMPORTANT: on MacOSX the ./ prefix is a strict requirement by some CLI commands !!!
 cmake_out_dir = "./cmake.out/$VENDOR-$PLATFORM.$ARCH/"
 
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 # Common shell commands & utils
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 def gradleCmd():
     return "gradlew" if os.name == "nt" else "gradle"
+
 
 def gradle(cmd):
     return [
         gradleCmd() + " " + cmd,
     ]
 
+
 def outputLibName(config):
     return config.inject_env("libj2v8-$VENDOR-$PLATFORM-$FILE_ABI.$LIB_EXT")
+
 
 def outputLibPath(config):
     return cmake_out_dir + "/" + outputLibName(config)
 
+
 def outputJarName(config):
     return config.inject_env("j2v8_$VENDOR-$PLATFORM_$FILE_ABI-$J2V8_FULL_VERSION.jar")
+
 
 def setEnvVar(name, value):
     if (os.name == "nt"):
         return ["set \"" + name + "=" + value + "\""]
     else:
         return ["export " + name + "=\"" + value + "\""]
+
 
 def setJavaHome(config):
     # NOTE: Docker Linux builds need some special handling, because not all images have
@@ -73,9 +82,11 @@ def setJavaHome(config):
     print("Using system-var JAVA_HOME")
     return []
 
+
 def setVersionEnv(config):
     return \
         setEnvVar("J2V8_FULL_VERSION", s.J2V8_FULL_VERSION)
+
 
 def shell(cmd, args):
     """
@@ -83,20 +94,25 @@ def shell(cmd, args):
     """
     return ["python $CWD/build_system/polyfills/" + cmd + ".py " + args]
 
+
 def cp(args):
     """Invokes the cross-platform polyfill for the 'cp' shell command"""
     return shell("cp", args)
+
 
 def mkdir(args):
     """Invokes the cross-platform polyfill for the 'mkdir' shell command"""
     return shell("mkdir", args)
 
+
 def rm(args):
     """Invokes the cross-platform polyfill for the 'rm' shell command"""
     return shell("rm", args)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 # Uniform build-steps (cross-platform)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 def build_j2v8_jni(config):
     java_class_id = "com.eclipsesource.v8.V8"
     java_class_parts = java_class_id.split(".")
@@ -112,18 +128,21 @@ def build_j2v8_jni(config):
         "echo Generating JNI header files...",
         "cd ./target/classes",
         "javah " + java_class_id,
-        ] + cp("com_eclipsesource_v8_V8.h ../../jni/com_eclipsesource_v8_V8Impl.h") + [
+    ] + cp("com_eclipsesource_v8_V8.h ../../jni/com_eclipsesource_v8_V8Impl.h") + [
         "echo Done",
     ]
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 # File generators, operations & utils
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 def copyOutput(config):
     jar_name = outputJarName(config)
 
     return \
-        mkdir("build.out") + \
-        cp("target/" + jar_name + " build.out/")
+            mkdir("build.out") + \
+            cp("target/" + jar_name + " build.out/")
+
 
 def clearNativeLibs(config):
     """
@@ -144,6 +163,7 @@ def clearNativeLibs(config):
         clearLibs("src/main/jniLibs/*/libj2v8.so")
 
     return rm_libs
+
 
 def copyNativeLibs(config):
     """
@@ -167,9 +187,9 @@ def copyNativeLibs(config):
 
     lib_target_path = None
     if (utils.is_android(config.platform)):
-        lib_target_path = config.inject_env("src/main/jniLibs/$FILE_ABI") # directory path
+        lib_target_path = config.inject_env("src/main/jniLibs/$FILE_ABI")  # directory path
         copy_cmds += mkdir(lib_target_path)
-        lib_target_path += "/libj2v8.so" # final lib file path
+        lib_target_path += "/libj2v8.so"  # final lib file path
     else:
         lib_target_path = "src/main/resources/"
 
@@ -179,7 +199,8 @@ def copyNativeLibs(config):
 
     return copy_cmds
 
-def apply_maven_null_settings(src_pom_path = "./pom.xml", target_pom_path = None):
+
+def apply_maven_null_settings(src_pom_path="./pom.xml", target_pom_path=None):
     """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values with fixed dummy parameter values"""
     maven_settings = {
         "properties": {
@@ -193,7 +214,8 @@ def apply_maven_null_settings(src_pom_path = "./pom.xml", target_pom_path = None
 
     apply_maven_settings(maven_settings, src_pom_path, target_pom_path)
 
-def apply_maven_config_settings(config, src_pom_path = "./pom.xml", target_pom_path = None):
+
+def apply_maven_config_settings(config, src_pom_path="./pom.xml", target_pom_path=None):
     """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values based on the given build-step config"""
     os = config.inject_env("$VENDOR-$PLATFORM")
     arch = config.file_abi
@@ -212,16 +234,18 @@ def apply_maven_config_settings(config, src_pom_path = "./pom.xml", target_pom_p
 
     apply_maven_settings(maven_settings, src_pom_path, target_pom_path)
 
-def apply_maven_settings(settings, src_pom_path = "./pom.xml", target_pom_path = None):
+
+def apply_maven_settings(settings, src_pom_path="./pom.xml", target_pom_path=None):
     """
     Copy the Maven pom.xml from src to target, while replacing the XML element values
     based on the values from the hierarchical settings dictionary structure
     """
-    #-----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
     pom_ns = "http://maven.apache.org/POM/4.0.0"
     ns = {"pom": pom_ns}
-    #-----------------------------------------------------------------------
-    def __recurse_maven_settings(settings, callback, curr_path = None):
+
+    # -----------------------------------------------------------------------
+    def __recurse_maven_settings(settings, callback, curr_path=None):
         if (curr_path is None):
             curr_path = []
 
@@ -236,13 +260,15 @@ def apply_maven_settings(settings, src_pom_path = "./pom.xml", target_pom_path =
                 callback(curr_path, value)
 
             curr_path.pop()
-    #-----------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------
     def __handle_setting(path, value):
         xpath = "." + "/pom:".join([""] + path)
         node = root.find(xpath, ns)
         node.text = value
         return
-    #-----------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------
 
     target_pom_path = target_pom_path or src_pom_path
 

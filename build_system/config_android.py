@@ -28,7 +28,8 @@ android_config.set_file_abis({
     c.arch_arm64: "arm64-v8a"
 })
 
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 def build_node_js(config):
     arch = config.inject_env("$ARCH")
     if ("x86_64" in arch):
@@ -52,49 +53,61 @@ def build_node_js(config):
             """,
     ]
 
+
 android_config.build_step(c.build_node_js, build_node_js)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_cmake(config):
     cmake_vars = cmu.setAllVars(config)
     cmake_toolchain = cmu.setToolchain("$BUILD_CWD/docker/android/android.$ARCH.toolchain.cmake")
-    dest_cpu= c.arch_x64 if config.arch == c.arch_x86_64 else config.arch
+    dest_cpu = c.arch_x64 if config.arch == c.arch_x86_64 else config.arch
     V8_monolith_library_dir = config.platform + "." + dest_cpu
-    
+
     return \
-        u.mkdir(u.cmake_out_dir) + \
-        ["cd " + u.cmake_out_dir] + \
-        u.rm("CMakeCache.txt CMakeFiles/") + [
-        """cmake \
-            -DJ2V8_MONOLITH_LIB_DIR={0} \
-            -DCMAKE_BUILD_TYPE=Release \
-            %(cmake_vars)s \
-            %(cmake_toolchain)s \
-            ../../ \
-        """.format(V8_monolith_library_dir)
-        % locals()
-    ]
+            u.mkdir(u.cmake_out_dir) + \
+            ["cd " + u.cmake_out_dir] + \
+            u.rm("CMakeCache.txt CMakeFiles/") + [
+            """cmake \
+                -DJ2V8_MONOLITH_LIB_DIR={0} \
+                -DCMAKE_BUILD_TYPE=Release \
+                %(cmake_vars)s \
+                %(cmake_toolchain)s \
+                ../../ \
+            """.format(V8_monolith_library_dir)
+            % locals()
+        ]
+
 
 android_config.build_step(c.build_j2v8_cmake, build_j2v8_cmake)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 android_config.build_step(c.build_j2v8_jni, u.build_j2v8_jni)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_cpp(config):
     return [
         "cd " + u.cmake_out_dir,
         "make -j4",
     ]
 
+
 android_config.build_step(c.build_j2v8_cpp, build_j2v8_cpp)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_java(config):
     return \
-        u.clearNativeLibs(config) + \
-        u.copyNativeLibs(config) + \
-        u.setVersionEnv(config) + \
-        u.gradle("clean assembleRelease")
+            u.clearNativeLibs(config) + \
+            u.copyNativeLibs(config) + \
+            u.setVersionEnv(config) + \
+            u.gradle("clean assembleRelease")
+
 
 android_config.build_step(c.build_j2v8_java, build_j2v8_java)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_test(config):
     # if you are running this step without cross-compiling, it is assumed that a proper target Android device
     # or emulator is running that can execute the tests (platform + architecture must be compatible to the the build settings)
@@ -126,21 +139,24 @@ def build_j2v8_test(config):
             "./docker/android/start-emulator.template.sh",
             "./docker/android/start-emulator.sh",
             lambda x: x
-                .replace("$IMG_ARCH", config.file_abi)
-                .replace("$EMU_ARCH", emu_arch)
+            .replace("$IMG_ARCH", config.file_abi)
+            .replace("$EMU_ARCH", emu_arch)
         )
 
-	os.chmod("./docker/android/start-emulator.sh", 0o755)
+        os.chmod("./docker/android/start-emulator.sh", 0o755)
 
         return ["/usr/bin/supervisord -c /j2v8/docker/android/supervisord.conf"]
 
+
 android_config.build_step(c.build_j2v8_test, build_j2v8_test)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_release(config):
     return \
-        u.setVersionEnv(config) + \
-        u.gradle(" uploadArchives")
+            u.setVersionEnv(config) + \
+            u.gradle(" uploadArchives")
+
 
 android_config.build_step(c.build_j2v8_release, build_j2v8_release)
-#-----------------------------------------------------------------------
-
+# -----------------------------------------------------------------------

@@ -1,4 +1,3 @@
-
 import sys
 
 import cli
@@ -7,6 +6,7 @@ import constants as c
 import build_utils as utils
 from shell_build import ShellBuildSystem
 import immutable
+
 
 class BuildState:
     # collection of all parsed build-steps that will then be passed on to the core build function
@@ -17,11 +17,12 @@ class BuildState:
     # into the list of atomic build-steps (see parsed_steps above)
     step_evaluators = {}
 
-#-----------------------------------------------------------------------
-# Advanced build-step parsing (anti-steps, multi-steps)
-#-----------------------------------------------------------------------
 
-def atomic_step(step, alias = None):
+# -----------------------------------------------------------------------
+# Advanced build-step parsing (anti-steps, multi-steps)
+# -----------------------------------------------------------------------
+
+def atomic_step(step, alias=None):
     """
     Atomic build-steps are just directly forwarded to the build-executor.
     This function will also automatically add an additional anti-step with a "~" prefix.
@@ -41,7 +42,8 @@ def atomic_step(step, alias = None):
     # register additional anti-step in CLI
     bc.avail_build_steps.append("~" + alias)
 
-def multi_step(alias, include, exclude = []):
+
+def multi_step(alias, include, exclude=[]):
     """
     Forwards a collection/sequence of build-steps to the build-executor when
     the defined step alias name was detected. Also the inverted anti-steps sequence
@@ -62,6 +64,7 @@ def multi_step(alias, include, exclude = []):
 
     # register additional anti-step in CLI
     bc.avail_build_steps.append("~" + alias)
+
 
 def init_buildsteps():
     """Setup of all available build-step atomics & combinations"""
@@ -97,20 +100,24 @@ def init_buildsteps():
     # this is useful when building J2V8 with a pre-compiled V8 dependency package
     multi_step(c.build_j2v8, [c.build_all], [c.build_v8, c.build_j2v8_test])
 
+
 def evaluate_build_step_option(step):
     """Find the registered evaluator function for the given step and execute it"""
     step_eval_func = BuildState.step_evaluators.get(step, raise_unhandled_option(step))
     step_eval_func()
 
+
 def raise_unhandled_option(step):
     return lambda: utils.cli_exit("INTERNAL-ERROR: Tried to handle unrecognized build-step \"" + step + "\"")
+
 
 # initialize the advanced parsing evaluation handlers for the build.py CLI
 init_buildsteps()
 
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 # Build execution core function
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 def execute_build(params):
     """
     Receives an params-object with all the necessary build-settings to start
@@ -154,7 +161,8 @@ def execute_build(params):
     avail_architectures = target_platform.architectures
 
     if (not params.arch in avail_architectures):
-        utils.cli_exit("ERROR: Unsupported architecture: \"" + params.arch + "\" for selected target platform: " + target)
+        utils.cli_exit(
+            "ERROR: Unsupported architecture: \"" + params.arch + "\" for selected target platform: " + target)
 
     if (params.buildsteps is None):
         utils.cli_exit("ERROR: No build-step specified, valid values are: " + ", ".join(bc.avail_build_steps))
@@ -200,26 +208,27 @@ def execute_build(params):
     # try to find the configuration parameters to run the cross-compiler
     if (cross_sys):
         if (cross_configs.get(cross_sys) is None):
-            utils.cli_exit("ERROR: target '" + target + "' does not have a recognized cross-compile host: '" + cross_sys + "'")
+            utils.cli_exit(
+                "ERROR: target '" + target + "' does not have a recognized cross-compile host: '" + cross_sys + "'")
         else:
             cross_cfg = cross_configs.get(cross_sys)
 
     # if we are the build-instigator (not a cross-compile build-agent) we directly run some initial checks & setups for the build
     # if (not params.cross_agent):
-        # print "Checking V8 builtins integration consistency..."
-        # utils.check_node_builtins()
+    # print "Checking V8 builtins integration consistency..."
+    # utils.check_node_builtins()
 
-        # v8_major,v8_minor,v8_build,v8_patch,v8_is_candidate = utils.get_v8_version()
+    # v8_major,v8_minor,v8_build,v8_patch,v8_is_candidate = utils.get_v8_version()
 
-        # print "--------------------------------------------------"
-        # print "V8:      %(v8_major)s.%(v8_minor)s.%(v8_build)s.%(v8_patch)s (candidate: %(v8_is_candidate)s)" % locals()
-        # print "--------------------------------------------------"
+    # print "--------------------------------------------------"
+    # print "V8:      %(v8_major)s.%(v8_minor)s.%(v8_build)s.%(v8_patch)s (candidate: %(v8_is_candidate)s)" % locals()
+    # print "--------------------------------------------------"
 
-        # print "Caching V8 artifacts..."
-        # curr_node_tag = (params.vendor + "-" if params.vendor else "") + target + "." + params.arch
-        # utils.store_nodejs_output(curr_node_tag, build_cwd)
+    # print "Caching V8 artifacts..."
+    # curr_node_tag = (params.vendor + "-" if params.vendor else "") + target + "." + params.arch
+    # utils.store_nodejs_output(curr_node_tag, build_cwd)
 
-    def execute_build_step(build_system, build_step, v8_build = False):
+    def execute_build_step(build_system, build_step, v8_build=False):
         """Creates an immutable copy of a single BuildStep configuration and executes it in the build-system"""
         # from this point on, make the build-input immutable to ensure consistency across the whole build process
         # any actions during the build-step should only be made based on the initial set of variables & conditions
@@ -227,7 +236,7 @@ def execute_build(params):
         build_step = immutable.freeze(build_step)
         if (v8_build):
             build_system.build_v8(build_step)
-        else:    
+        else:
             build_system.build(build_step)
 
     # a cross-compile was requested, we just launch the virtualization-environment and then delegate
@@ -247,12 +256,12 @@ def execute_build(params):
 
         # invoke the build.py CLI within the virtualized / self-contained build-system provider
         cross_cfg.custom_cmd = "python ./build.py " + \
-            "--cross-agent " + cross_sys + \
-            " -t $PLATFORM -a $ARCH " + \
-            (" -ne" if params.node_enabled else "") + \
-            (" -v " + params.vendor if params.vendor else "") + \
-            (" -knl " if params.keep_native_libs else "") + \
-            " " + " ".join(parsed_steps) + parsed_step_args
+                               "--cross-agent " + cross_sys + \
+                               " -t $PLATFORM -a $ARCH " + \
+                               (" -ne" if params.node_enabled else "") + \
+                               (" -v " + params.vendor if params.vendor else "") + \
+                               (" -knl " if params.keep_native_libs else "") + \
+                               " " + " ".join(parsed_steps) + parsed_step_args
 
         # apply meta-vars & util functions
         cross_cfg.compiler = cross_compiler
@@ -270,11 +279,10 @@ def execute_build(params):
 
         if 'v8' in parsed_steps:
             parsed_steps.remove('v8')
-            
+
             # first build V8 and store output
             execute_build_step(cross_compiler, cross_cfg, True)
 
-        
         # start the cross-compile
         execute_build_step(cross_compiler, cross_cfg)
 
@@ -296,7 +304,8 @@ def execute_build(params):
         # execute all steps from a list that parsed / evaluated before (see the "build-step parsing" section above)
         for step in parsed_steps:
             if (not step in build_steps):
-                print("WARNING: skipping build step \"" + step + "\" (not configured and/or supported for platform \"" + params.target + "\")")
+                print(
+                    "WARNING: skipping build step \"" + step + "\" (not configured and/or supported for platform \"" + params.target + "\")")
                 continue
 
             target_step = build_steps[step]

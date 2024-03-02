@@ -25,7 +25,8 @@ linux_config.set_file_abis({
     c.arch_x86: "x86_32",
 })
 
-#-----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
 def build_node_js(config):
     return [
         "cd ./node",
@@ -39,38 +40,47 @@ def build_node_js(config):
         "CFLAGS=-fPIC CXXFLAGS=-fPIC make -j4 > node.build.output 2>&1",
     ]
 
+
 linux_config.build_step(c.build_node_js, build_node_js)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_cmake(config):
     cmake_vars = cmu.setAllVars(config)
     V8_monolith_library_dir = config.platform + "." + config.arch
-    
+
     # NOTE: uses Python string interpolation (see: https://stackoverflow.com/a/4450610)
     return \
-        u.mkdir(u.cmake_out_dir) + \
-        ["cd " + u.cmake_out_dir] + \
-        u.rm("CMakeCache.txt CMakeFiles/") + \
-        u.setJavaHome(config) + \
-        ["""cmake \
+            u.mkdir(u.cmake_out_dir) + \
+            ["cd " + u.cmake_out_dir] + \
+            u.rm("CMakeCache.txt CMakeFiles/") + \
+            u.setJavaHome(config) + \
+            ["""cmake \
             -DJ2V8_MONOLITH_LIB_DIR={0} \
             -DCMAKE_BUILD_TYPE=Release \
             %(cmake_vars)s \
             ../../ \
         """.format(V8_monolith_library_dir)
-        % locals()]
+             % locals()]
+
 
 linux_config.build_step(c.build_j2v8_cmake, build_j2v8_cmake)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 linux_config.build_step(c.build_j2v8_jni, u.build_j2v8_jni)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_cpp(config):
     return [
         "cd " + u.cmake_out_dir,
         "make -j4",
     ]
 
+
 linux_config.build_step(c.build_j2v8_cpp, build_j2v8_cpp)
-#-----------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------
 def build_j2v8_optimize(config):
     # NOTE: execstack / strip are not part of the alpine tools, therefore we just skip this step
     if config.vendor == c.vendor_alpine:
@@ -82,9 +92,10 @@ def build_j2v8_optimize(config):
         "strip --strip-unneeded -R .note -R .comment " + lib_path,
     ]
 
+
 linux_config.build_step(c.build_j2v8_optimize, build_j2v8_optimize)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 j.add_java_build_step(linux_config)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------
 j.add_java_test_step(linux_config)
-#-----------------------------------------------------------------------
+# -----------------------------------------------------------------------

@@ -5,10 +5,12 @@ import build_utils as utils
 from build_structures import BuildSystem, BuildStep
 import shared_build_steps as u
 
+
 class VagrantBuildStep(BuildStep):
-    def __init__(self, platform, build_cwd = None, host_cwd = None, pre_build_cmd = None):
+    def __init__(self, platform, build_cwd=None, host_cwd=None, pre_build_cmd=None):
         super(VagrantBuildStep, self).__init__("vagrant-build-host", platform, None, build_cwd, host_cwd)
         self.pre_build_cmd = pre_build_cmd
+
 
 class VagrantBuildSystem(BuildSystem):
     def clean(self, config):
@@ -19,13 +21,15 @@ class VagrantBuildSystem(BuildSystem):
         try:
             self.exec_host_cmd("vagrant --version", config)
         except subprocess.CalledProcessError:
-            utils.cli_exit("ERROR: Failed Vagrant build-system health check, make sure Vagrant is available and running!")
+            utils.cli_exit(
+                "ERROR: Failed Vagrant build-system health check, make sure Vagrant is available and running!")
 
     def pre_build(self, config):
         vagrant_start_cmd = "vagrant up"
 
         if (config.sys_image):
-            vagrant_start_cmd = u.setEnvVar("VAGRANT_SYS_IMAGE", config.sys_image)[0] + utils.host_cmd_sep() + vagrant_start_cmd
+            vagrant_start_cmd = u.setEnvVar("VAGRANT_SYS_IMAGE", config.sys_image)[
+                                    0] + utils.host_cmd_sep() + vagrant_start_cmd
 
         if (config.pre_build_cmd):
             vagrant_start_cmd = config.pre_build_cmd + utils.host_cmd_sep() + vagrant_start_cmd
@@ -43,7 +47,7 @@ class VagrantBuildSystem(BuildSystem):
         self.exec_host_cmd(vagrant_start_cmd, config)
 
     def exec_build(self, config):
-        print ("VAGRANT running " + config.platform + "@" + config.arch + " => " + config.name)
+        print("VAGRANT running " + config.platform + "@" + config.arch + " => " + config.name)
 
         vagrant_run_cmd = None
 
