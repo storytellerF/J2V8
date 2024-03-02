@@ -1,7 +1,7 @@
 import collections
 import datetime
 import re
-import StringIO
+from io import StringIO
 import sys
 import traceback
 import unittest
@@ -46,6 +46,7 @@ class TestResult(TestResultBase):
 
     def __init__(self, streams, test_cases):
         TestResultBase.__init__(self)
+        self.outputBuffer = None
         self.__sys_stdout = None
         self.__sys_stderr = None
 
@@ -76,7 +77,7 @@ class TestResult(TestResultBase):
         self.__sys_stderr = sys.stderr
 
         # just one buffer for both stdout and stderr
-        self.outputBuffer = StringIO.StringIO()
+        self.outputBuffer = StringIO()
 
         sys.stdout = OutputRedirector(self.streams + [self.outputBuffer])
         sys.stderr = OutputRedirector(self.streams + [self.outputBuffer])

@@ -56,7 +56,7 @@ class SurePhyreTestRunner(object):
             if not os.path.exists(reports_dir):
                 os.makedirs(reports_dir)
 
-            with file(os.path.join(reports_dir, k + '.txt'), 'wb') as fp:
+            with open(os.path.join(reports_dir, k + '.txt'), 'wb') as fp:
                 # execute all tests in this test class
                 class_result = TestResult([sys.stdout, fp], class_tests)
                 class_suite(class_result)

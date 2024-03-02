@@ -5,7 +5,6 @@ import re
 import shutil
 import subprocess
 import sys
-from itertools import ifilter
 
 import constants as c
 
@@ -67,7 +66,7 @@ def cli_exit(message):
 def get_v8_version():
     v8_version_text = None
 
-    with file("./v8.out/include/v8-version.h", "r") as v8_version_file:
+    with open("./v8.out/include/v8-version.h", "r") as v8_version_file:
         v8_version_text = v8_version_file.read()
 
         major = re.search(r"#define V8_MAJOR_VERSION (\d+)", v8_version_text)
@@ -90,7 +89,7 @@ def get_v8_version():
 def get_nodejs_version():
     njs_version_text = None
 
-    with file("./node/src/node_version.h", "r") as njs_version_file:
+    with open("./node/src/node_version.h", "r") as njs_version_file:
         njs_version_text = njs_version_file.read()
 
         major = re.search(r"#define NODE_MAJOR_VERSION (\d+)", njs_version_text)

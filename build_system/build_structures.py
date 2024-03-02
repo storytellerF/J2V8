@@ -1,10 +1,8 @@
 """Contains the fundamental data-structures that are used for the build-process"""
 
 from abc import ABCMeta, abstractmethod
-import commands
-import os
-import sys
 from shutil import copy2
+
 import build_settings as s
 import build_utils as utils
 import shared_build_steps as sbs
@@ -82,6 +80,12 @@ class BuildSystem:
 
         # store V8 build output
         utils.store_v8_output(self.get_v8_image_name(config), config)
+
+    def exec_v8_build(self, config):
+        pass
+
+    def get_v8_image_name(self, config):
+        pass
 
     def build(self, config):
         self.prepare_build(config)

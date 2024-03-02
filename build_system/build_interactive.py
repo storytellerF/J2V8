@@ -38,7 +38,7 @@ def run_interactive_cli():
     build_steps_argv = \
         sys.argv[base_arg_count + 1:] \
             if len(sys.argv) > base_arg_count + 1 \
-            else shlex.split(raw_input("Override build-steps ? (leave empty to run pre-configured steps): "))
+            else shlex.split(input("Override build-steps ? (leave empty to run pre-configured steps): "))
 
     # create a parser that only expects the build-step args
     parser = cli.get_blank_parser()
