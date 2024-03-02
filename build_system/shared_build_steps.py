@@ -71,10 +71,10 @@ def setEnvVar(name, value):
 def setJavaHome(config):
     # NOTE: Docker Linux builds need some special handling, because not all images have
     # a pre-defined JAVA_HOME environment variable
-    if (config.platform == c.target_linux and config.cross_agent == "docker"):
+    if config.platform == c.target_linux and config.cross_agent == "docker":
         # currently only the Alpine image brings its own java-installation & JAVA_HOME
         # for other Linux images we install the JDK and setup JAVA_HOME manually
-        if (config.vendor != c.vendor_alpine):
+        if config.vendor != c.vendor_alpine:
             print("Setting JAVA_HOME env-var for Docker Linux build")
             return setEnvVar("JAVA_HOME", "/opt/jdk/jdk1.8.0_131")
 

@@ -196,7 +196,7 @@ class TestResult(TestResultBase):
         test_method = type(test).__dict__.get(test._testMethodName)
         test_regex_field = "__testRegex"
 
-        if (hasattr(test_method, test_regex_field)):
+        if hasattr(test_method, test_regex_field):
             regex = test_method.__dict__.get(test_regex_field)
             output = self.outputBuffer.getvalue()
 
@@ -205,10 +205,10 @@ class TestResult(TestResultBase):
             for rx in regex:
                 match_ok = re.search(rx, output)
 
-                if (not match_ok):
+                if not match_ok:
                     regex_mismatches.append(rx)
 
-            if (any(regex_mismatches)):
+            if any(regex_mismatches):
                 mismatches_str = "\n\t\t".join(regex_mismatches)
                 try:
                     raise Exception("Unable to find expected patterns in test-output:\n\t\t" + mismatches_str)

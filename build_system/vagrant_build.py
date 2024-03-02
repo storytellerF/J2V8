@@ -27,15 +27,15 @@ class VagrantBuildSystem(BuildSystem):
     def pre_build(self, config):
         vagrant_start_cmd = "vagrant up"
 
-        if (config.sys_image):
+        if config.sys_image:
             vagrant_start_cmd = u.setEnvVar("VAGRANT_SYS_IMAGE", config.sys_image)[
                                     0] + utils.host_cmd_sep() + vagrant_start_cmd
 
-        if (config.pre_build_cmd):
+        if config.pre_build_cmd:
             vagrant_start_cmd = config.pre_build_cmd + utils.host_cmd_sep() + vagrant_start_cmd
 
         def cli_exit_event():
-            if (config.no_shutdown):
+            if config.no_shutdown:
                 print("INFO: Vagrant J2V8 machine will continue running...")
                 return
 
@@ -51,7 +51,7 @@ class VagrantBuildSystem(BuildSystem):
 
         vagrant_run_cmd = None
 
-        if (utils.is_win32(config.platform)):
+        if utils.is_win32(config.platform):
             cmd_sep = "; "
             build_cmd = config.custom_cmd or cmd_sep.join(config.build(config))
             build_cmd = self.inject_env("cd $BUILD_CWD" + cmd_sep + build_cmd, config)
@@ -65,7 +65,7 @@ class VagrantBuildSystem(BuildSystem):
         self.exec_host_cmd(vagrant_run_cmd, config)
 
     def post_build(self, config):
-        if (config.no_shutdown):
+        if config.no_shutdown:
             print("INFO: Vagrant J2V8 machine will continue running...")
             return
 

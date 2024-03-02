@@ -10,7 +10,7 @@ import build_utils as utils
 import shared_build_steps as sbs
 
 
-class PlatformConfig():
+class PlatformConfig:
     """Configuration container for all values that are defined for a single target-platform"""
 
     def __init__(self, name, architectures):

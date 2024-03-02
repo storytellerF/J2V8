@@ -45,10 +45,10 @@ def is_win32(platform):
 def platform_libext(config):
     lib_ext = "so"
 
-    if (is_win32(config.platform)):
+    if is_win32(config.platform):
         lib_ext = "dll"
 
-    elif (is_macos(config.platform)):
+    elif is_macos(config.platform):
         lib_ext = "dylib"
 
     return lib_ext

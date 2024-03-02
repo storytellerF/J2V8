@@ -26,7 +26,7 @@ class SurePhyreTestRunner(object):
         def find_test_methods(test_decl):
             is_iterable = hasattr(test_decl, '__iter__')
 
-            if (is_iterable):
+            if is_iterable:
                 for tests in test_decl:
                     find_test_methods(tests)
             else:
@@ -84,7 +84,7 @@ class SurePhyreTestRunner(object):
             utils.write_log("INFO")
 
         def print_summary_problems(err_list, kind):
-            if (any(err_list)):
+            if any(err_list):
                 utils.write_log("ERROR", kind + "s: ")
 
                 for r in err_list:

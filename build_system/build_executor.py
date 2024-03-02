@@ -27,7 +27,7 @@ def atomic_step(step, alias=None):
     Atomic build-steps are just directly forwarded to the build-executor.
     This function will also automatically add an additional anti-step with a "~" prefix.
     """
-    if (alias is None):
+    if alias is None:
         alias = step
 
     step_eval = BuildState.step_evaluators
@@ -135,39 +135,39 @@ def execute_build(params):
     you are running on your machine (only Docker and/or Vagrant are required to run this).
     """
     # convert from a dictionary form to the normalized params-object form
-    if (isinstance(params, dict)):
+    if isinstance(params, dict):
         params = cli.BuildParams(params)
 
     # can be used to force output of all started sub-processes through the host-process stdout
     utils.redirect_stdout_enabled = hasattr(params, "redirect_stdout") and params.redirect_stdout
 
-    if (params.target is None):
+    if params.target is None:
         utils.cli_exit("ERROR: No target platform specified")
 
-    if (params.docker and params.vagrant):
+    if params.docker and params.vagrant:
         utils.cli_exit("ERROR: Choose either Docker or Vagrant for the build, can not use both")
 
     target = params.target
 
-    if (not target in bc.platform_configs):
+    if not target in bc.platform_configs:
         utils.cli_exit("ERROR: Unrecognized target platform: " + target)
 
     # this defines the PlatformConfig / operating system the build should be run for
     target_platform = bc.platform_configs.get(target)
 
-    if (params.arch is None):
+    if params.arch is None:
         utils.cli_exit("ERROR: No target architecture specified")
 
     avail_architectures = target_platform.architectures
 
-    if (not params.arch in avail_architectures):
+    if not params.arch in avail_architectures:
         utils.cli_exit(
             "ERROR: Unsupported architecture: \"" + params.arch + "\" for selected target platform: " + target)
 
-    if (params.buildsteps is None):
+    if params.buildsteps is None:
         utils.cli_exit("ERROR: No build-step specified, valid values are: " + ", ".join(bc.avail_build_steps))
 
-    if (not params.buildsteps is None and not isinstance(params.buildsteps, list)):
+    if not params.buildsteps is None and not isinstance(params.buildsteps, list):
         params.buildsteps = [params.buildsteps]
 
     parsed_steps = BuildState.parsed_steps
@@ -194,7 +194,7 @@ def execute_build(params):
     # force build-steps into their pre-defined order (see: http://stackoverflow.com/a/23529016)
     parsed_steps = [step for step in bc.atomic_build_step_sequence if step in parsed_steps]
 
-    if (len(parsed_steps) == 0):
+    if len(parsed_steps) == 0:
         utils.cli_exit("WARNING: No build-steps to be done ... exiting")
 
     build_cwd = utils.get_cwd()
@@ -206,8 +206,8 @@ def execute_build(params):
 
     # if a recognized cross-compile option was specified by the params
     # try to find the configuration parameters to run the cross-compiler
-    if (cross_sys):
-        if (cross_configs.get(cross_sys) is None):
+    if cross_sys:
+        if cross_configs.get(cross_sys) is None:
             utils.cli_exit(
                 "ERROR: target '" + target + "' does not have a recognized cross-compile host: '" + cross_sys + "'")
         else:

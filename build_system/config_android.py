@@ -121,7 +121,7 @@ def build_j2v8_test(config):
         u.gradle("spoon" + step_args)
 
     # we are running a build directly on the host shell
-    if (not config.cross_agent):
+    if not config.cross_agent:
         # just run the tests on the host directly
         return test_cmds
 

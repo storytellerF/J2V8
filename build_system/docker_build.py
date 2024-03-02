@@ -35,24 +35,24 @@ class DockerBuildSystem(BuildSystem):
 
             docker_version_match = re.search(r"Client:(.*)\n\n", version_str + "\n\n", re.DOTALL)
 
-            if (docker_version_match is None or docker_version_match.group(1) is None):
+            if docker_version_match is None or docker_version_match.group(1) is None:
                 utils.cli_exit(
                     "ERROR: Unable to determine docker server version from version string: \n\n" + version_str)
 
             version_match = re.search(r"OS/Arch:\s+(.*)$", docker_version_match.group(1), re.MULTILINE)
 
-            if (version_match is None):
+            if version_match is None:
                 utils.cli_exit(
                     "ERROR: Unable to determine docker server platform from version string: \n\n" + version_str)
 
             docker_version = version_match.group(1)
 
             docker_req_platform = "windows" if utils.is_win32(config.platform) else "linux"
-            if (platform.system() == "Darwin"):
+            if platform.system() == "Darwin":
                 docker_req_platform = "darwin/amd64"
 
             # check if the docker engine is running the expected container platform (linux or windows)
-            if (docker_req_platform not in docker_version):
+            if docker_req_platform not in docker_version:
                 utils.cli_exit(
                     "ERROR: docker server must be using " + docker_req_platform + " containers, instead found server version using: " + docker_version)
 
