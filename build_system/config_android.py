@@ -32,7 +32,7 @@ android_config.set_file_abis({
 # -----------------------------------------------------------------------
 def build_node_js(config):
     arch = config.inject_env("$ARCH")
-    if ("x86_64" in arch):
+    if "x86_64" in arch:
         os.environ['DEST_CPU'] = "x64"
     else:
         os.environ['DEST_CPU'] = arch

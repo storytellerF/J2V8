@@ -8,8 +8,8 @@ import shutil
 items = sys.argv[1:]
 
 for item in items:
-    if (os.path.isdir(item)):
+    if os.path.isdir(item):
         shutil.rmtree(item)
     else:
-        if (os.path.exists(item)):
+        if os.path.exists(item):
             os.remove(item)

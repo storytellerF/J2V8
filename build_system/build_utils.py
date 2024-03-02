@@ -127,7 +127,7 @@ def readlines(f, newlines):
                 if pos:
                     nl = n
 
-            return (pos, nl)
+            return pos, nl
 
         # }
 
@@ -217,7 +217,7 @@ def execute_to_str(cmd, cwd=None):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True, shell=True, cwd=cwd)
     out, err = p.communicate()
 
-    if (not err is None):
+    if not err is None:
         raise subprocess.CalledProcessError(p.returncode, cmd, err)
 
     return out
@@ -250,13 +250,13 @@ def store_nodejs_output(next_node_tag, build_cwd):
 
     curr_tag_file = out_dir + "/j2v8.node.out"
 
-    if (os.path.isdir(out_dir)):
-        if (os.path.exists(curr_tag_file)):
+    if os.path.isdir(out_dir):
+        if os.path.exists(curr_tag_file):
             with open(curr_tag_file, "r") as f:
                 curr_node_tag = f.read()
 
-    if (curr_node_tag != next_node_tag):
-        if (curr_node_tag is not None):
+    if curr_node_tag != next_node_tag:
+        if curr_node_tag is not None:
             print(">>> Storing Node.js build files for later use: " + curr_node_tag)
 
             for subdir in ["out"] + extra_dirs:
@@ -265,20 +265,20 @@ def store_nodejs_output(next_node_tag, build_cwd):
 
                 # we want to store into the cache, delete any existing directories that might
                 # already occupy the cache subdir (there should be none)
-                if (os.path.isdir(curr_cache)):
+                if os.path.isdir(curr_cache):
                     shutil.rmtree(curr_cache)
 
                 # move the previously built artifacts into the cache
-                if (os.path.isdir(node)):
+                if os.path.isdir(node):
                     print("node --- " + subdir + " ---> cache[" + curr_node_tag + "]")
                     shutil.move(node, curr_cache)
 
-        if (next_node_tag is None):
+        if next_node_tag is None:
             return
 
         next_dir = cached_dir(next_node_tag, "out")
 
-        if (os.path.isdir(next_dir)):
+        if os.path.isdir(next_dir):
             print(">>> Reused Node.js build files from build-cache: " + next_node_tag)
             print("node <--- out --- cache[" + next_node_tag + "]")
             # move main node.js "out" directory from the cache back into the node directory
@@ -289,7 +289,7 @@ def store_nodejs_output(next_node_tag, build_cwd):
                 node = curr_dir(subdir)
                 next_cache = cached_dir(next_node_tag, subdir)
 
-                if (os.path.isdir(next_cache)):
+                if os.path.isdir(next_cache):
                     print("node <--- " + subdir + " --- cache[" + next_node_tag + "]")
                     shutil.move(next_cache, node)
         else:
@@ -303,7 +303,7 @@ def store_nodejs_output(next_node_tag, build_cwd):
             with open(curr_tag_file, "w") as f:
                 f.write(next_node_tag)
 
-    elif (not next_node_tag is None):
+    elif not next_node_tag is None:
         # this build is for the same vendor/platform/architecture as last time
         print(">>> Node.js build-cache used: " + next_node_tag)
 
@@ -332,11 +332,11 @@ def check_node_builtins():
     node_src = "./node/src/"
 
     # node.js directory is not available
-    if (not os.path.exists(node_src)):
+    if not os.path.exists(node_src):
         return
 
     # building from a pre-built dependency package (does not include c++ source files)
-    if (len(glob.glob(node_src + "*.cc")) == 0):
+    if len(glob.glob(node_src + "*.cc")) == 0:
         return
 
     j2v8_jni_cpp_path = "jni/com_eclipsesource_v8_V8Impl.cpp"
@@ -351,12 +351,12 @@ def check_node_builtins():
     end1 = j2v8_code.find("}", start)
     end2 = j2v8_code.find("#endif", start)
 
-    if (end1 < 0 and end2 < 0):
+    if end1 < 0 and end2 < 0:
         return
 
     end = min(int(e) for e in [end1, end2])
 
-    if (end < 0):
+    if end < 0:
         return
 
     j2v8_linked_builtins = j2v8_code[start + len(tag):end]
@@ -369,7 +369,7 @@ def check_node_builtins():
 
     node_builtins = []
     for cc_file in os.listdir(node_src):
-        if (not cc_file.endswith(".cc")):
+        if not cc_file.endswith(".cc"):
             continue
 
         with open(node_src + cc_file, "r") as node_cpp:
@@ -377,22 +377,22 @@ def check_node_builtins():
 
         m = re.search(r"NODE_MODULE_CONTEXT_AWARE_BUILTIN\((.*),\s*node::.*\)", node_code)
 
-        if (m is not None):
+        if m is not None:
             node_builtins.append(m.group(1))
 
     # are all Node.js builtins mentioned?
     builtins_ok = collections.Counter(j2v8_builtins) == collections.Counter(node_builtins)
 
-    if (not builtins_ok):
+    if not builtins_ok:
         j2v8_extra = [item for item in j2v8_builtins if item not in node_builtins]
         j2v8_missing = [item for item in node_builtins if item not in j2v8_builtins]
 
         error = "ERROR: J2V8 linking builtins code does not match Node.js builtin modules, check " + j2v8_jni_cpp_path
 
-        if (len(j2v8_extra) > 0):
+        if len(j2v8_extra) > 0:
             error += "\n\t" + "J2V8 defines unrecognized node-modules: " + str(j2v8_extra)
 
-        if (len(j2v8_missing) > 0):
+        if len(j2v8_missing) > 0:
             error += "\n\t" + "J2V8 definition is missing node-modules: " + str(j2v8_missing)
 
         cli_exit(error)

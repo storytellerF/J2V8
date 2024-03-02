@@ -85,7 +85,7 @@ class TestResult(TestResultBase):
         # now the real testing logic kicks in
         test_class, test_method = utils.get_test_names(test)
 
-        if (not self.class_start_time):
+        if not self.class_start_time:
             self.class_start_time = datetime.datetime.now()
 
         self.test_start_time = datetime.datetime.now()
@@ -99,10 +99,10 @@ class TestResult(TestResultBase):
         will only be executed once the very last test-method from the original
         set of given unit-tests is completed.
         """
-        if (self.testsRun != len(self.test_cases)):
+        if self.testsRun != len(self.test_cases):
             return
 
-        if (not self.class_stop_time):
+        if not self.class_stop_time:
             self.class_stop_time = datetime.datetime.now()
 
         num_tests = len(self.all_results)
@@ -117,10 +117,10 @@ class TestResult(TestResultBase):
         log_level = "INFO"
         failure_tag = ""
 
-        if (num_failures or num_errors):
+        if num_failures or num_errors:
             log_level = "ERROR"
             failure_tag = "<<< FAILURE! "
-        elif (num_skips):
+        elif num_skips:
             log_level = "WARNING"
 
         utils.write_separator()
@@ -153,7 +153,7 @@ class TestResult(TestResultBase):
         Disconnect output redirection and return buffer.
         Safe to call multiple times.
         """
-        if (test_info):
+        if test_info:
             self.test_stop_time = datetime.datetime.now()
 
             test_output = self.outputBuffer.getvalue()
@@ -164,16 +164,16 @@ class TestResult(TestResultBase):
 
             self.all_results.append(test_result)
 
-            if (test_result.outcome == TestOutcome.Success):
+            if test_result.outcome == TestOutcome.Success:
                 self.success_results.append(test_result)
 
-            elif (test_result.outcome == TestOutcome.Error):
+            elif test_result.outcome == TestOutcome.Error:
                 self.error_results.append(test_result)
 
-            elif (test_result.outcome == TestOutcome.Failure):
+            elif test_result.outcome == TestOutcome.Failure:
                 self.failure_results.append(test_result)
 
-            elif (test_result.outcome == TestOutcome.Skip):
+            elif test_result.outcome == TestOutcome.Skip:
                 self.skipped_results.append(test_result)
 
         if self.__sys_stdout:

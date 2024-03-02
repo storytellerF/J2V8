@@ -32,7 +32,7 @@ class PlatformConfig:
     def cross_compiler(self, cross_host_name):
         compiler = self.cross_compilers.get(cross_host_name)
 
-        if (not compiler):
+        if not compiler:
             utils.cli_exit("ERROR: internal error while looking for cross-compiler: " + cross_host_name)
 
         return compiler()
@@ -124,7 +124,7 @@ class BuildSystem:
     def __exec_cmd_core(self, cmd, config, cwd):
         cmd = self.inject_env(cmd, config)
 
-        if (cwd is not None):
+        if cwd is not None:
             # inject env-vars in the given working-directory path
             cwd = self.inject_env(cwd, config)
 

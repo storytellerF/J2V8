@@ -85,7 +85,7 @@ class DockerBuildSystem(BuildSystem):
         # if we are building with docker
         # and a specific vendor was specified for the build
         # and no custom sys-image was specified ...
-        if (config.docker and config.vendor and not config.sys_image):
+        if config.docker and config.vendor and not config.sys_image:
             vendor_default_image = dkr_cfg.vendor_default_images.get(config.vendor)
 
         dest_cpu = config.arch
@@ -141,7 +141,7 @@ class DockerBuildSystem(BuildSystem):
         # if we are building with docker
         # and a specific vendor was specified for the build
         # and no custom sys-image was specified ...
-        if (config.docker and config.vendor and not config.sys_image):
+        if config.docker and config.vendor and not config.sys_image:
             vendor_default_image = dkr_cfg.vendor_default_images.get(config.vendor)
 
             # ... then use the default image for that vendor if available
@@ -173,7 +173,7 @@ class DockerBuildSystem(BuildSystem):
 
         # NOTE: the --memory 3g setting is imporant for windows docker builds,
         # since the windows docker engine defaults to a 1gb limit which is not enough to run the Node.js build with MSBuild
-        if (utils.is_win32(config.platform)):
+        if utils.is_win32(config.platform):
             extra_options = "--memory 3g"
         else:
             extra_options = "--privileged"

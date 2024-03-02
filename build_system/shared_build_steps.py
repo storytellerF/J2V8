@@ -62,7 +62,7 @@ def outputJarName(config):
 
 
 def setEnvVar(name, value):
-    if (os.name == "nt"):
+    if os.name == "nt":
         return ["set \"" + name + "=" + value + "\""]
     else:
         return ["export " + name + "=\"" + value + "\""]
@@ -118,7 +118,7 @@ def build_j2v8_jni(config):
     java_class_parts = java_class_id.split(".")
     java_class_filepath = "./target/classes/" + "/".join(java_class_parts) + ".class"
 
-    if (not os.path.exists(java_class_filepath)):
+    if not os.path.exists(java_class_filepath):
         return [
             "echo WARNING: Could not find " + java_class_parts[-1] + ".class file at path: " + java_class_filepath,
             "echo JNI Header generation will be skipped...",
@@ -150,7 +150,7 @@ def clearNativeLibs(config):
     (can be disabled by the "keep_native_libs" config property)
     """
     # the CLI can override this step
-    if (config.keep_native_libs):
+    if config.keep_native_libs:
         print("Native libraries not cleared...")
         return []
 
@@ -172,13 +172,13 @@ def copyNativeLibs(config):
     """
     platform_cmake_out = config.inject_env(cmake_out_dir)
 
-    if (utils.is_win32(config.platform)):
+    if utils.is_win32(config.platform):
         platform_cmake_out += "Debug/" if hasattr(config, 'debug') and config.debug else "Release/"
 
     lib_pattern = config.inject_env(platform_cmake_out + "*j2v8-*$FILE_ABI.$LIB_EXT")
     platform_lib_path = glob.glob(lib_pattern)
 
-    if (len(platform_lib_path) == 0):
+    if len(platform_lib_path) == 0:
         utils.cli_exit("ERROR: Could not find native library for inclusion in platform target package")
 
     platform_lib_path = platform_lib_path[0]
@@ -186,7 +186,7 @@ def copyNativeLibs(config):
     copy_cmds = []
 
     lib_target_path = None
-    if (utils.is_android(config.platform)):
+    if utils.is_android(config.platform):
         lib_target_path = config.inject_env("src/main/jniLibs/$FILE_ABI")  # directory path
         copy_cmds += mkdir(lib_target_path)
         lib_target_path += "/libj2v8.so"  # final lib file path
@@ -246,7 +246,7 @@ def apply_maven_settings(settings, src_pom_path="./pom.xml", target_pom_path=Non
 
     # -----------------------------------------------------------------------
     def __recurse_maven_settings(settings, callback, curr_path=None):
-        if (curr_path is None):
+        if curr_path is None:
             curr_path = []
 
         for key in settings:

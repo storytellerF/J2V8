@@ -234,14 +234,14 @@ def execute_build(params):
         # any actions during the build-step should only be made based on the initial set of variables & conditions
         # NOTE: this restriction makes it much more easy to reason about the build-process as a whole (see "unidirectional data flow")
         build_step = immutable.freeze(build_step)
-        if (v8_build):
+        if v8_build:
             build_system.build_v8(build_step)
         else:
             build_system.build(build_step)
 
     # a cross-compile was requested, we just launch the virtualization-environment and then delegate
     # the originally requested build parameters to the cross-compile environment then running the build.py CLI
-    if (cross_cfg):
+    if cross_cfg:
         cross_compiler = target_platform.cross_compiler(cross_sys)
 
         parsed_step_args = ""
@@ -292,18 +292,18 @@ def execute_build(params):
         build_steps = dict(target_platform.steps)
 
         # this is a build-agent for a cross-compile
-        if (params.cross_agent):
+        if params.cross_agent:
             # the cross-compile step dictates which directory will be used to run the actual build
             cross_cfg = cross_configs.get(params.cross_agent)
 
-            if (cross_cfg is None):
+            if cross_cfg is None:
                 utils.cli_exit("ERROR: internal error while looking for cross-compiler config: " + params.cross_agent)
 
             build_cwd = cross_cfg.build_cwd
 
         # execute all steps from a list that parsed / evaluated before (see the "build-step parsing" section above)
         for step in parsed_steps:
-            if (not step in build_steps):
+            if not step in build_steps:
                 print(
                     "WARNING: skipping build step \"" + step + "\" (not configured and/or supported for platform \"" + params.target + "\")")
                 continue
