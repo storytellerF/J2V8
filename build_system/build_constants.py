@@ -3,12 +3,12 @@ Contains the essential lists/map structures that are referenced by the build pro
 """
 import collections
 
-import constants as c
+import build_system.constants as c
 
-from config_android import android_config
-from config_linux import linux_config
-from config_macos import macos_config
-from config_win32 import win32_config
+from build_system.config_android import android_config
+from build_system.config_linux import linux_config
+from build_system.config_macos import macos_config
+from build_system.config_win32 import win32_config
 
 CLIStep = collections.namedtuple("CLIStep", "id help")
 
@@ -17,20 +17,25 @@ CLIStep = collections.namedtuple("CLIStep", "id help")
 # -----------------------------------------------------------------------
 atomic_build_steps = [
     CLIStep(c.build_node_js,
-            "          Builds the Node.js & V8 dependency artifacts that are later linked into the J2V8 native bridge code.\n" +
+            "Builds the Node.js & V8 dependency artifacts that are later linked into the J2V8 native bridge code.\n" +
             "                (only works if the Node.js source was checked out into the J2V8 ./node directory)"),
     CLIStep(c.build_v8,
             "               Builds the V8 dependency artifacts that are later linked into the J2V8 native bridge code."),
     CLIStep(c.build_j2v8_cmake,
-            "       Uses CMake to generate the native Makefiles / IDE project files to later build the J2V8 C++ native bridge shared libraries."),
+            "Uses CMake to generate the native Makefiles / IDE project files to later build the J2V8 C++ native "
+            "bridge shared libraries."),
     CLIStep(c.build_j2v8_jni, "         Generate the J2V8 JNI C++ Header files."),
     CLIStep(c.build_j2v8_cpp,
-            "         Compile and link the J2V8 C++ shared libraries (.so/.dylib/.dll), which provide the JNI bridge to interop with the C++ code of Node.js / V8."),
+            "Compile and link the J2V8 C++ shared libraries (.so/.dylib/.dll), which provide the JNI bridge to "
+            "interop with the C++ code of Node.js / V8."),
     CLIStep(c.build_j2v8_optimize,
-            "    The native J2V8 libraries are optimized for performance and/or filesize by using the available tools of the target-platform / compiler-toolchain."),
+            "The native J2V8 libraries are optimized for performance and/or filesize by using the available tools of "
+            "the target-platform / compiler-toolchain."),
     CLIStep(c.build_j2v8_java,
-            "        Compiles the Java source code and packages it, including the previously built native libraries, into the final package artifacts.\n" +
-            "                For the execution of this build-step Maven (Java) or Gradle (Android) are used for the respective target platforms."),
+            "Compiles the Java source code and packages it, including the previously built native libraries, "
+            "into the final package artifacts.\n" +
+            "For the execution of this build-step Maven (Java) or Gradle (Android) are used for the respective target "
+            "platforms."),
     CLIStep(c.build_j2v8_test, "        Runs the Java (JUnit/Gradle) unit tests."),
     CLIStep(c.build_j2v8_release, "     Release J2V8."),
 ]

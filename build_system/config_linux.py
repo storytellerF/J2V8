@@ -1,9 +1,9 @@
-import constants as c
-from build_structures import PlatformConfig
-from docker_build import DockerBuildSystem, DockerBuildStep
-import java_build_steps as j
-import shared_build_steps as u
-import cmake_utils as cmu
+import build_system.constants as c
+from build_system.build_structures import PlatformConfig
+from build_system.docker_build import DockerBuildSystem, DockerBuildStep
+import build_system.java_build_steps as j
+import build_system.shared_build_steps as u
+import build_system.cmake_utils as cmu
 
 linux_config = PlatformConfig(c.target_linux, [c.arch_x86, c.arch_x64])
 

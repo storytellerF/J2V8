@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import sys
 
-import constants as c
+import build_system.constants as c
 
 V8Version = collections.namedtuple("V8Version", "major minor build patch is_candidate")
 NodeJSVersion = collections.namedtuple("NodeJSVersion", "major minor patch is_release")

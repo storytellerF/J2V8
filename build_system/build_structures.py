@@ -3,9 +3,9 @@
 from abc import ABCMeta, abstractmethod
 from shutil import copy2
 
-import build_settings as s
-import build_utils as utils
-import shared_build_steps as sbs
+import build_system.build_settings as s
+import build_system.build_utils as utils
+import build_system.shared_build_steps as sbs
 
 
 class PlatformConfig:

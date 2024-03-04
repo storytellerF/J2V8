@@ -4,13 +4,10 @@ Utility-belt script to manage the Node.js/V8 dependency
 import argparse
 import collections
 import fnmatch
-import glob
 import io
-from itertools import ifilter
 import os
 import sys
 import tarfile
-import zipfile
 
 import build_system.constants as c
 import build_system.build_constants as bc
@@ -41,7 +38,7 @@ class WriteProgressFileObject(io.FileIO):
 
     def write(self, b):
         progress = min(100.0, ReadProgressFileObject.current_read / (self._total_size * 0.01))
-        sys.stdout.write("\r[%3.2f%%] " % (progress))
+        sys.stdout.write("\r[%3.2f%%] " % progress)
         sys.stdout.flush()
         return io.FileIO.write(self, b)
 
@@ -64,7 +61,8 @@ def flush_cache(args=None, silent=False):
 cmd_flush_cache = Command(
     name="flush-cache",
     function=flush_cache,
-    help="Move any Node.js/V8 native build-artifacts (.o/.a/.lib) from the './node' directory into the 'node.out' cache subdirectory\n" + \
+    help="Move any Node.js/V8 native build-artifacts (.o/.a/.lib) from the './node' directory into the 'node.out' "
+         "cache subdirectory\n" + \
          "         of the respective vendor/platform/architecture."
 )
 
@@ -84,7 +82,8 @@ def git_clone(args):
         # NOTE: autocrlf=false is very important for linux based cross-compiles of Node.js to work on a windows
         # docker host
         utils.execute(
-            "git clone https://github.com/nodejs/node --config core.autocrlf=false --depth 1 --branch v" + settings.NODE_VERSION)
+            "git clone https://github.com/nodejs/node --config core.autocrlf=false --depth 1 --branch v" +
+            settings.NODE_VERSION)
     else:
         print("Skipped git-clone: Node.js source-code is already cloned & checked out at the './node' directory.")
 
@@ -94,7 +93,7 @@ def git_clone(args):
 cmd_git_clone = Command(
     name="git-clone",
     function=git_clone,
-    help="   Clone the C++ source-code from the official Node.js GitHub repository." + \
+    help="   Clone the C++ source-code from the official Node.js GitHub repository." +
          "\n            (the Node.js version branch from build_settings.py will be checked out automatically)"
 )
 
@@ -216,7 +215,8 @@ def package(platforms=None):
 cmd_package = Command(
     name="package",
     function=package,
-    help="Create a .tar.bz2 dependency package with all the currently built Node.js/V8 binaries from the './node.out' cache directories."
+    help="Create a .tar.bz2 dependency package with all the currently built Node.js/V8 binaries from the './node.out' "
+         "cache directories."
 )
 
 
@@ -339,7 +339,7 @@ commands = {
 # -----------------------------------------------------------------------
 def parse_sub_command(args, choices, help_formatter, extra_args=None):
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-    help_str = [c + "    " + help_formatter(c) for c in choices]
+    help_str = [i + "    " + help_formatter(i) for i in choices]
     parser.add_argument("command", help="\n\n".join(help_str) + "\n\n", choices=choices)
 
     if extra_args:
@@ -356,8 +356,8 @@ args = parse_sub_command(sys.argv[1:2], commands, lambda c: commands[c].get("__h
 lvl1_cmd = commands.get(args.command)
 
 # parse second level command
-sub_choices = filter(lambda x: x != "__help", lvl1_cmd)
-args = parse_sub_command(sys.argv[2:], sub_choices, lambda c: lvl1_cmd[c].help, \
+sub_choices = list(filter(lambda x: x != "__help", lvl1_cmd))
+args = parse_sub_command(sys.argv[2:], sub_choices, lambda i: lvl1_cmd[i].help,
                          lambda parser: parser.add_argument("args", nargs="*"))
 lvl2_cmd = args.command
 

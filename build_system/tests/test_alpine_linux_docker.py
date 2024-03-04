@@ -2,8 +2,8 @@ import unittest
 
 from runner.test_asserts import *
 
-import constants as c
-import build_executor as bex
+import build_system.constants as c
+import build_system.build_executor as bex
 
 
 class TestAlpineLinuxDocker(unittest.TestCase):

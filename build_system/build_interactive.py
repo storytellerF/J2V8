@@ -1,12 +1,11 @@
 """Provides a simple interactive CLI to start a selected build from a given set of build-configurations"""
-import argparse
 import sys
 import shlex
 
-import build_configs as bcfg
-import build_executor as bex
-import build_utils as utils
-import cli as cli
+import build_system.build_configs as bcfg
+import build_system.build_executor as bex
+import build_system.build_utils as utils
+import build_system.cli as cli
 
 
 def run_interactive_cli():
@@ -14,23 +13,25 @@ def run_interactive_cli():
     for cfg in bcfg.configs:
         print("[" + str(idx) + "] " + cfg.get("name"))
         idx += 1
-    print  # newline
+    print()  # newline
 
     # NOTE: argv[1] usually should be -i, therefore we need to consider this arg in all checks
     base_arg_count = 2
 
-    sel_index = \
-        int(sys.argv[base_arg_count]) \
-            if len(sys.argv) > base_arg_count \
-            else input("Select a predefined build-configuration to run: ")
+    if len(sys.argv) > base_arg_count:
+        sel_index = int(sys.argv[base_arg_count])
+    else:
+        sel_index = int(input("Select a predefined build-configuration to run: "))
 
+    print(sel_index)
+    print(isinstance(sel_index, int))
     if not isinstance(sel_index, int) or sel_index < 0 or sel_index > len(bcfg.configs):
         utils.cli_exit("ERROR: Must enter a valid test index in the range [0 ... " + str(len(bcfg.configs)) + "]")
 
     selected_build_cfg = bcfg.configs[sel_index]
 
     print("Building: " + selected_build_cfg.get("name"))
-    print  # newline
+    print()  # newline
 
     build_params = selected_build_cfg.get("params")
 
@@ -53,7 +54,7 @@ def run_interactive_cli():
     # merge the potentially customized build-steps into the
     # original pre-defined build-config params
     # see: https://stackoverflow.com/a/15277395/425532
-    build_params.update((k, v) for k, v in user_params.iteritems() if v is not None)
+    build_params.update((k, v) for k, v in user_params.items() if v is not None)
 
     # start the build
     bex.execute_build(build_params)

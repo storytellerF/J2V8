@@ -4,27 +4,12 @@ reused between target-platform configurations or build-steps on the same platfor
 """
 import glob
 import os
-import sys
 import xml.etree.ElementTree as ET
 
+import build_system.constants as c
+import build_system.build_settings as s
+import build_system.build_utils as utils
 
-# see: https://stackoverflow.com/a/27333347/425532
-class XmlCommentParser(ET.XMLTreeBuilder):
-
-    def __init__(self):
-        ET.XMLTreeBuilder.__init__(self)
-        # assumes ElementTree 1.2.X
-        self._parser.CommentHandler = self.handle_comment
-
-    def handle_comment(self, data):
-        self._target.start(ET.Comment, {})
-        self._target.data(data)
-        self._target.end(ET.Comment)
-
-
-import constants as c
-import build_settings as s
-import build_utils as utils
 
 # TODO: add CLI option to override / pass-in custom maven/gradle args
 # NOTE: --batch-mode is needed to avoid unicode symbols messing up stdout while unit-testing the build-system
@@ -92,7 +77,7 @@ def shell(cmd, args):
     """
     Invokes the cross-platform polyfill for the shell command defined by the 'cmd' parameter
     """
-    return ["python $CWD/build_system/polyfills/" + cmd + ".py " + args]
+    return ["python3 $CWD/build_system/polyfills/" + cmd + ".py " + args]
 
 
 def cp(args):
@@ -201,7 +186,8 @@ def copyNativeLibs(config):
 
 
 def apply_maven_null_settings(src_pom_path="./pom.xml", target_pom_path=None):
-    """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values with fixed dummy parameter values"""
+    """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values with fixed dummy
+    parameter values"""
     maven_settings = {
         "properties": {
             "os": "undefined",
@@ -216,7 +202,8 @@ def apply_maven_null_settings(src_pom_path="./pom.xml", target_pom_path=None):
 
 
 def apply_maven_config_settings(config, src_pom_path="./pom.xml", target_pom_path=None):
-    """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values based on the given build-step config"""
+    """Copy the Maven pom.xml from src to target, while replacing the necessary XML element values based on the given
+    build-step config"""
     os = config.inject_env("$VENDOR-$PLATFORM")
     arch = config.file_abi
     version = s.J2V8_FULL_VERSION
@@ -274,7 +261,10 @@ def apply_maven_settings(settings, src_pom_path="./pom.xml", target_pom_path=Non
 
     print("Updating Maven configuration (" + target_pom_path + ")...")
 
-    tree = ET.parse(src_pom_path, XmlCommentParser())
+    # https://stackoverflow.com/a/61893676/9879923
+    parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+
+    tree = ET.parse(src_pom_path, parser)
     root = tree.getroot()
 
     __recurse_maven_settings(settings, __handle_setting)

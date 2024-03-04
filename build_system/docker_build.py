@@ -1,13 +1,12 @@
 import atexit
 import re
 import subprocess
-import sys
 import platform
 
-from build_structures import BuildSystem, BuildStep
-import constants as c
-import build_utils as utils
-import docker_configs as dkr_cfg
+from build_system.build_structures import BuildSystem, BuildStep
+import build_system.constants as c
+import build_system.build_utils as utils
+import build_system.docker_configs as dkr_cfg
 
 
 class DockerBuildStep(BuildStep):

@@ -1,9 +1,9 @@
-import constants as c
-from build_structures import PlatformConfig
-from docker_build import DockerBuildSystem, DockerBuildStep
-import shared_build_steps as u
-import build_utils as b
-import cmake_utils as cmu
+import build_system.constants as c
+from build_system.build_structures import PlatformConfig
+from build_system.docker_build import DockerBuildSystem, DockerBuildStep
+import build_system.shared_build_steps as u
+import build_system.build_utils as b
+import build_system.cmake_utils as cmu
 import os
 
 android_config = PlatformConfig(c.target_android, [c.arch_x86, c.arch_arm, c.arch_arm64, c.arch_x86_64])

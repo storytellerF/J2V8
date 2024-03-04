@@ -2,7 +2,7 @@
 
 #### Requirements
 
-1. Python 2
+1. Python 3
 2. Docker (*only required for building using Docker)
 
 #### Build
@@ -21,10 +21,10 @@ build -i, --interactive
 # or
 
 ###### Win32
-python build.py -i, --interactive
+python3 build.py -i, --interactive
 
 ###### MacOS / Linux
-python2 build.py -i, --interactive
+python3 build.py -i, --interactive
 
 entering interactive mode...
 

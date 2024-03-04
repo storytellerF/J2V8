@@ -1,5 +1,5 @@
-import constants as c
-import shared_build_steps as u
+import build_system.constants as c
+import build_system.shared_build_steps as u
 
 
 def add_java_build_step(platform_config):

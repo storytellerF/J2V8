@@ -1,8 +1,6 @@
 import subprocess
-import sys
-from build_structures import BuildSystem
-import constants as c
-import build_utils as utils
+from build_system.build_structures import BuildSystem
+import build_system.build_utils as utils
 
 
 class ShellBuildSystem(BuildSystem):
@@ -23,6 +21,7 @@ class ShellBuildSystem(BuildSystem):
         print("SHELL building " + config.platform + "@" + config.arch + " => " + config.name)
 
         build_cmd = config.custom_cmd or " && ".join(config.build(config))
+        print(config.build(config))
         shell_str = self.inject_env("cd $BUILD_CWD && " + build_cmd, config)
 
         self.exec_cmd(shell_str, config)

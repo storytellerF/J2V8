@@ -1,11 +1,9 @@
-import sys
-
-import cli
-import build_constants as bc
-import constants as c
-import build_utils as utils
-from shell_build import ShellBuildSystem
-import immutable
+import build_system.cli as cli
+import build_system.build_constants as bc
+import build_system.constants as c
+import build_system.build_utils as utils
+from build_system.shell_build import ShellBuildSystem
+import build_system.immutable as immutable
 
 
 class BuildState:
@@ -25,7 +23,7 @@ class BuildState:
 def atomic_step(step, alias=None):
     """
     Atomic build-steps are just directly forwarded to the build-executor.
-    This function will also automatically add an additional anti-step with a "~" prefix.
+    This function will also automatically add another anti-step with a "~" prefix.
     """
     if alias is None:
         alias = step
@@ -43,13 +41,15 @@ def atomic_step(step, alias=None):
     bc.avail_build_steps.append("~" + alias)
 
 
-def multi_step(alias, include, exclude=[]):
+def multi_step(alias, include, exclude=None):
     """
     Forwards a collection/sequence of build-steps to the build-executor when
-    the defined step alias name was detected. Also the inverted anti-steps sequence
+    the defined step alias name was detected. Also, the inverted anti-steps sequence
     will be evaluated if the "~" prefixed alias is recognized.
     """
 
+    if exclude is None:
+        exclude = []
     step_eval = BuildState.step_evaluators
 
     # add aliased step-sequence (alias => step1, step2, ... , stepN)
@@ -87,7 +87,7 @@ def init_buildsteps():
     atomic_step(c.build_j2v8_java, c.build_java)
     atomic_step(c.build_j2v8_test, c.build_test)
 
-    # multi-step alias: build only the native parts (includes V8)
+    # multistep alias: build only the native parts (includes V8)
     multi_step(c.build_native, [
         c.build_v8,
         c.build_j2v8_cmake,
@@ -96,7 +96,7 @@ def init_buildsteps():
         c.build_j2v8_optimize,
     ])
 
-    # multi-step alias: build everything that belongs to J2V8 (excludes V8)
+    # multistep alias: build everything that belongs to J2V8 (excludes V8)
     # this is useful when building J2V8 with a pre-compiled V8 dependency package
     multi_step(c.build_j2v8, [c.build_all], [c.build_v8, c.build_j2v8_test])
 
@@ -120,7 +120,7 @@ init_buildsteps()
 # -----------------------------------------------------------------------
 def execute_build(params):
     """
-    Receives an params-object with all the necessary build-settings to start
+    Receives a params-object with all the necessary build-settings to start
     building the J2V8 artifacts. There are two paths internally that this function will take:
 
     A) Run the build in the same OS shell environment that the build.py command was started from.
@@ -149,7 +149,7 @@ def execute_build(params):
 
     target = params.target
 
-    if not target in bc.platform_configs:
+    if target not in bc.platform_configs:
         utils.cli_exit("ERROR: Unrecognized target platform: " + target)
 
     # this defines the PlatformConfig / operating system the build should be run for
@@ -160,14 +160,14 @@ def execute_build(params):
 
     avail_architectures = target_platform.architectures
 
-    if not params.arch in avail_architectures:
+    if params.arch not in avail_architectures:
         utils.cli_exit(
             "ERROR: Unsupported architecture: \"" + params.arch + "\" for selected target platform: " + target)
 
     if params.buildsteps is None:
         utils.cli_exit("ERROR: No build-step specified, valid values are: " + ", ".join(bc.avail_build_steps))
 
-    if not params.buildsteps is None and not isinstance(params.buildsteps, list):
+    if params.buildsteps is not None and not isinstance(params.buildsteps, list):
         params.buildsteps = [params.buildsteps]
 
     parsed_steps = BuildState.parsed_steps
@@ -213,9 +213,8 @@ def execute_build(params):
         else:
             cross_cfg = cross_configs.get(cross_sys)
 
-    # if we are the build-instigator (not a cross-compile build-agent) we directly run some initial checks & setups for the build
-    # if (not params.cross_agent):
-    # print "Checking V8 builtins integration consistency..."
+    # if we are the build-instigator (not a cross-compile build-agent) we directly run some initial checks & setups
+    # for the build if (not params.cross_agent): print "Checking V8 builtins integration consistency..."
     # utils.check_node_builtins()
 
     # v8_major,v8_minor,v8_build,v8_patch,v8_is_candidate = utils.get_v8_version()
@@ -230,9 +229,10 @@ def execute_build(params):
 
     def execute_build_step(build_system, build_step, v8_build=False):
         """Creates an immutable copy of a single BuildStep configuration and executes it in the build-system"""
-        # from this point on, make the build-input immutable to ensure consistency across the whole build process
-        # any actions during the build-step should only be made based on the initial set of variables & conditions
-        # NOTE: this restriction makes it much more easy to reason about the build-process as a whole (see "unidirectional data flow")
+        # from this point on, make the build-input immutable to ensure consistency across the whole build process any
+        # actions during the build-step should only be made based on the initial set of variables & conditions NOTE:
+        # this restriction makes it much easier to reason about the build-process as a whole (see "unidirectional
+        # data flow")
         build_step = immutable.freeze(build_step)
         if v8_build:
             build_system.build_v8(build_step)
@@ -303,9 +303,10 @@ def execute_build(params):
 
         # execute all steps from a list that parsed / evaluated before (see the "build-step parsing" section above)
         for step in parsed_steps:
-            if not step in build_steps:
+            if step not in build_steps:
                 print(
-                    "WARNING: skipping build step \"" + step + "\" (not configured and/or supported for platform \"" + params.target + "\")")
+                    "WARNING: skipping build step \"" + step + "\" (not configured and/or supported for platform \"" +
+                    params.target + "\")")
                 continue
 
             target_step = build_steps[step]
